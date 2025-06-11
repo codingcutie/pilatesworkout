@@ -29,8 +29,7 @@ import theHundred from './exercises/the_hundred.js';
 import swimming from './exercises/swimming.js'; // Ensure swimming.js is also imported if it exists
 
 // Aggregate all imported exercises into a single array.
-// This array will hold the exercises currently displayed and any added by the user.
-// IMPORTANT: These are the "master" definitions. We will clone them when adding to 'currentWorkoutExercises'.
+// This array will hold the "master" definitions. We will clone them when adding to 'currentWorkoutExercises'.
 const allMasterExercises = [
     abdominalCurl, armCircles, breathing, catCow, childsPose, clamshells, deadBug, 
     deepBreathingCooldown, doubleLegStretch, figureFourStretch, gluteBridge, 
@@ -248,7 +247,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- PDF Export Modal Event Listeners ---
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     const exportPdfModal = document.getElementById('exportPdfModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
+    // Corrected: Use 'closeModalBtn' as defined in index.html
+    const closeModalBtn = document.getElementById('closeModalBtn'); 
     const cancelPdfExportBtn = document.getElementById('cancelPdfExportBtn');
     const generatePdfBtn = document.getElementById('generatePdfBtn');
     const overallNotes = document.getElementById('overallNotes');
