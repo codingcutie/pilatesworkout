@@ -1,5 +1,3 @@
-# pilates workout template
-
 pilatesworkout/
 ├── index.html
 ├── style.css
@@ -25,4 +23,5 @@ pilatesworkout/
     ├── side_plank.js
     ├── single_leg_stretch.js
     ├── spine_curls.js
-    └── supine_spine_twist.js
+    ├── supine_spine_twist.js
+    └── the_hundred.js
