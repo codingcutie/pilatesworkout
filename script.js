@@ -4,7 +4,7 @@
 // Now includes a mechanism to add pre-defined exercises from the /exercises folder.
 
 // Import individual exercise modules
-import abdominalCurl from './exercises/abdominal_curl.js';
+import abdominalCurl from '/exercises/abdominal_curl.js';
 import armCircles from './exercises/arm_circles.js';
 import breathing from './exercises/breathing.js';
 import catCow from './exercises/cat_cow.js';
