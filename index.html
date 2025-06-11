@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RA-Safe Pilates Workout Template</title>
+    <!-- Link to Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to Google Fonts for 'Inter' -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Link to custom CSS file -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Link to html2pdf.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="text-gray-700">
+
+    <div class="main-container">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800">RA-Safe Pilates Workout Template</h1>
+            <p class="text-lg text-gray-600 mt-2">A routine focused on knee stability, hip & glute strengthening.</p>
+        </header>
+
+        <section id="equipment" class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="subsection-title">Equipment Needed</h2>
+            <ul class="list-disc list-inside text-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
+                <li>Yoga Mat (Required)</li>
+                <li>Small hand weights (optional)</li>
+                <li>Resistance band (optional)</li>
+                <li>Pilates ring (optional)</li>
+                <li>Small ball (optional)</li>
+            </ul>
+        </section>
+
+        <section id="workout-routine" class="mb-10">
+            <h2 class="section-title">Your Pilates Workout Routine</h2>
+            <p class="mb-6 text-gray-600">This routine is designed to be gentle on joints while building core strength, knee stability, and targeting hips and glutes. Aim for 8-12 repetitions per exercise, for 1-3 sets, or as your body allows. Focus on smooth, controlled movements and proper breathing.</p>
+
+            <h3 class="subsection-title">Warm-up (5-10 minutes)</h3>
+            <div id="warm-up-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+            <h3 class="subsection-title">Main Workout - Core & Abs</h3>
+            <div id="core-workout-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+            <h3 class="subsection-title">Main Workout - Full Body & Strengthening (Hips, Glutes, Knees)</h3>
+            <div id="full-body-workout-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+            <h3 class="subsection-title">Cool-down (5-10 minutes)</h3>
+            <div id="cool-down-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+        </section>
+
+        <section id="notes-reflections" class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="section-title">Notes & Reflections</h2>
+            <p class="mb-4 text-gray-600">Use this space to record your thoughts, feelings, and progress after your workout. This helps in understanding your body's responses and planning future sessions.</p>
+            <textarea id="overallNotes" class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" rows="8" placeholder="How did you feel during the workout today? Any particular muscles worked more? Areas to improve next time?"></textarea>
+        </section>
+
+        <div class="flex justify-center mt-8">
+            <button id="exportPdfBtn" class="btn-action">Export Workout to PDF</button>
+        </div>
+    </div>
+
+    <!-- Export PDF Modal -->
+    <div id="exportPdfModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" id="closeModalBtn">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Select Exercise Levels for PDF</h2>
+            <p class="text-gray-600 mb-6">Choose the level (Foundation, Main, or Progressive) for each exercise to be included in your PDF workout plan.</p>
+            
+            <div id="pdf-export-options" class="max-h-[60vh] overflow-y-auto pr-2 mb-6">
+                <!-- Exercise level selection will be dynamically loaded here by script.js -->
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button class="btn-cancel" id="cancelPdfExportBtn">Cancel</button>
+                <button class="btn-action" id="generatePdfBtn">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden div for PDF content generation -->
+    <div id="pdfContent" class="pdf-content-wrapper"></div>
+
+    <!-- Link to custom JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
