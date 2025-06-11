@@ -122,8 +122,8 @@ function createExerciseCard(exercise) {
 // Function to render all exercises based on the 'exercises' array
 function renderExercises(currentExercises) {
     const warmUpList = document.getElementById('warm-up-list');
-    const coreWorkoutList = document.getElementById('core-workout-list');
-    const fullBodyWorkoutList = document.getElementById('full-body-workout-list');
+    const coreWorkoutList = document.getElementById('workout-list-1');
+    const fullBodyWorkoutList = document.getElementById('workout-list-2');
     const coolDownList = document.getElementById('cool-down-list');
 
     // Clear existing content before rendering
