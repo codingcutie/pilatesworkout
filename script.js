@@ -4,29 +4,29 @@
 // Now includes a mechanism to add pre-defined exercises from the /exercises folder.
 
 // Import individual exercise modules
-import abdominalCurl from 'pilatesworkout/exercises/abdominal_curl.js';
-import armCircles from 'pilatesworkout/exercises/arm_circles.js';
-import breathing from 'pilatesworkout/exercises//breathing.js';
-import catCow from 'pilatesworkout/exercises//cat_cow.js';
-import childsPose from 'pilatesworkout/exercises//childs_pose.js';
-import clamshells from 'pilatesworkout/exercises//clamshells.js';
-import deadBug from 'pilatesworkout/exercises//dead_bug.js';
-import deepBreathingCooldown from 'pilatesworkout/exercises//deep_breathing_cooldown.js';
-import doubleLegStretch from 'pilatesworkout/exercises//double_leg_stretch.js';
-import figureFourStretch from 'pilatesworkout/exercises//figure_four_stretch.js';
-import gluteBridge from 'pilatesworkout/exercises//glute_bridge.js';
-import hamstringStretch from 'pilatesworkout/exercises//hamstring_stretch.js';
-import kneesToChest from 'pilatesworkout/exercises//knees_to_chest.js';
-import pelvicTilts from 'pilatesworkout/exercises//pelvic_tilts.js';
-import plank from 'pilatesworkout/exercises//plank.js';
-import quadrupedLegLifts from 'pilatesworkout/exercises//quadruped_leg_lifts.js';
-import rollUp from 'pilatesworkout/exercises//roll_up.js';
-import sidePlank from 'pilatesworkout/exercises//side_plank.js';
-import singleLegStretch from 'pilatesworkout/exercises//single_leg_stretch.js';
-import spineCurls from 'pilatesworkout/exercises//spine_curls.js';
-import supineSpineTwist from 'pilatesworkout/exercises//supine_spine_twist.js';
-import theHundred from 'pilatesworkout/exercises//the_hundred.js';
-import swimming from 'pilatesworkout/exercises//swimming.js'; // Ensure swimming.js is also imported if it exists
+import abdominalCurl from './exercises/abdominal_curl.js';
+import armCircles from './exercises/arm_circles.js';
+import breathing from './exercises//breathing.js';
+import catCow from './exercises//cat_cow.js';
+import childsPose from './exercises//childs_pose.js';
+import clamshells from './exercises//clamshells.js';
+import deadBug from './exercises//dead_bug.js';
+import deepBreathingCooldown from './exercises//deep_breathing_cooldown.js';
+import doubleLegStretch from './exercises//double_leg_stretch.js';
+import figureFourStretch from './exercises//figure_four_stretch.js';
+import gluteBridge from './exercises//glute_bridge.js';
+import hamstringStretch from './exercises//hamstring_stretch.js';
+import kneesToChest from './exercises//knees_to_chest.js';
+import pelvicTilts from './exercises//pelvic_tilts.js';
+import plank from './exercises//plank.js';
+import quadrupedLegLifts from './exercises//quadruped_leg_lifts.js';
+import rollUp from './exercises//roll_up.js';
+import sidePlank from './exercises//side_plank.js';
+import singleLegStretch from './exercises//single_leg_stretch.js';
+import spineCurls from './exercises//spine_curls.js';
+import supineSpineTwist from './exercises//supine_spine_twist.js';
+import theHundred from './exercises//the_hundred.js';
+import swimming from './exercises//swimming.js'; // Ensure swimming.js is also imported if it exists
 
 // Aggregate all imported exercises into a single array.
 // This array will hold the "master" definitions. We will clone them when adding to 'currentWorkoutExercises'.
