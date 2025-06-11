@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const pdfContentDiv = document.getElementById('pdfContent');
         pdfContentDiv.innerHTML = `
-            <h1>RA-Safe Pilates Workout Template</h1>
+            <h1>Pilates Workout Template</h1>
             <p style="text-align: center; margin-bottom: 20px;">Customized Workout Plan - Generated on ${new Date().toLocaleDateString()}</p>
             
             <h2>Equipment Needed</h2>
