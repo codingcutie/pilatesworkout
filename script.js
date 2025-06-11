@@ -1,7 +1,7 @@
 // --- Core App Logic with Local Data Files ---
 // This script loads exercise data directly from local .js files,
 // handles exercise rendering, and PDF export functionality.
-// No data persistence is included in this version.
+// Now includes a mechanism to add pre-defined exercises from the /exercises folder.
 
 // Import individual exercise modules
 import abdominalCurl from './exercises/abdominal_curl.js';
@@ -25,15 +25,36 @@ import sidePlank from './exercises/side_plank.js';
 import singleLegStretch from './exercises/single_leg_stretch.js';
 import spineCurls from './exercises/spine_curls.js';
 import supineSpineTwist from './exercises/supine_spine_twist.js';
+import theHundred from './exercises/the_hundred.js';
+import swimming from './exercises/swimming.js'; // Ensure swimming.js is also imported if it exists
 
-// Aggregate all imported exercises into a single array
-// This array now serves as the single source of truth for exercise data
-const exercises = [
+// Aggregate all imported exercises into a single array.
+// This array will hold the exercises currently displayed and any added by the user.
+// IMPORTANT: These are the "master" definitions. We will clone them when adding to 'currentWorkoutExercises'.
+const allMasterExercises = [
     abdominalCurl, armCircles, breathing, catCow, childsPose, clamshells, deadBug, 
     deepBreathingCooldown, doubleLegStretch, figureFourStretch, gluteBridge, 
     hamstringStretch, kneesToChest, pelvicTilts, plank, quadrupedLegLifts, 
-    rollUp, sidePlank, singleLegStretch, spineCurls, supineSpineTwist
+    rollUp, sidePlank, singleLegStretch, spineCurls, supineSpineTwist, theHundred, swimming
 ];
+
+// This array will hold the exercises currently in the user's workout,
+// including their current level index and any notes.
+let currentWorkoutExercises = [];
+
+// Initialize currentWorkoutExercises with a deep clone of master exercises
+// This ensures we start with a clean copy for each session and can modify properties
+// like currentLevelIndex and notes without affecting the original master data.
+function initializeWorkoutExercises() {
+    currentWorkoutExercises = allMasterExercises.map(exercise => ({
+        ...exercise,
+        // Deep copy the levels array to ensure independent modification if needed later
+        levels: exercise.levels.map(level => ({ ...level })),
+        currentLevelIndex: exercise.currentLevelIndex || 0, // Ensure currentLevelIndex is set
+        notes: '' // Initialize notes for each exercise
+    })).sort((a, b) => a.id.localeCompare(b.id)); // Sort by ID for consistent display
+}
+
 
 // Function to create an exercise card DOM element
 function createExerciseCard(exercise) {
@@ -65,8 +86,9 @@ function createExerciseCard(exercise) {
         const prevBtn = cardElement.querySelector('.carousel-prev-btn');
         const nextBtn = cardElement.querySelector('.carousel-next-btn');
 
-        if (prevBtn) prevBtn.disabled = exerciseData.currentLevelIndex === 0;
-        if (nextBtn) nextBtn.disabled = exerciseData.currentLevelIndex === exerciseData.levels.length - 1;
+        // Disable carousel buttons if there's only one level
+        if (prevBtn) prevBtn.disabled = exerciseData.currentLevelIndex === 0 || exerciseData.levels.length === 1;
+        if (nextBtn) nextBtn.disabled = exerciseData.currentLevelIndex === exerciseData.levels.length - 1 || exerciseData.levels.length === 1;
     };
 
     card.innerHTML = `
@@ -101,29 +123,24 @@ function createExerciseCard(exercise) {
         }
     });
 
-    // --- NEW: Handle individual exercise notes ---
     const notesTextarea = card.querySelector('textarea');
-    // Set initial value if notes exist (important when re-rendering or for pre-filled notes)
     notesTextarea.value = exercise.notes || ''; 
 
     notesTextarea.addEventListener('input', (event) => {
-        // Find the original exercise object in the global 'exercises' array
-        // and update its 'notes' property.
-        const targetExercise = exercises.find(ex => ex.id === exercise.id);
+        const targetExercise = currentWorkoutExercises.find(ex => ex.id === exercise.id);
         if (targetExercise) {
             targetExercise.notes = event.target.value; 
         }
     });
-    // --- END NEW ---
 
     return card;
 }
 
-// Function to render all exercises based on the 'exercises' array
-function renderExercises(currentExercises) {
+// Function to render all exercises based on the 'currentWorkoutExercises' array
+function renderExercises() {
     const warmUpList = document.getElementById('warm-up-list');
-    const coreWorkoutList = document.getElementById('workout-list-1');
-    const fullBodyWorkoutList = document.getElementById('workout-list-2');
+    const coreWorkoutList = document.getElementById('core-workout-list');
+    const fullBodyWorkoutList = document.getElementById('full-body-workout-list');
     const coolDownList = document.getElementById('cool-down-list');
 
     // Clear existing content before rendering
@@ -132,7 +149,20 @@ function renderExercises(currentExercises) {
     fullBodyWorkoutList.innerHTML = '';
     coolDownList.innerHTML = '';
 
-    currentExercises.forEach(exercise => {
+    // Sort currentWorkoutExercises by type first, then by name for consistent rendering
+    const sortedExercises = [...currentWorkoutExercises].sort((a, b) => {
+        const typeOrder = ['warmup', 'core', 'full-body', 'cooldown'];
+        const typeA = typeOrder.indexOf(a.type);
+        const typeB = typeOrder.indexOf(b.type);
+
+        if (typeA !== typeB) {
+            return typeA - typeB;
+        }
+        return a.name.localeCompare(b.name);
+    });
+
+
+    sortedExercises.forEach(exercise => {
         const card = createExerciseCard(exercise);
         if (exercise.type === 'warmup') {
             warmUpList.appendChild(card);
@@ -150,30 +180,72 @@ function renderExercises(currentExercises) {
 const populateExportOptions = () => {
     const pdfExportOptions = document.getElementById('pdf-export-options');
     pdfExportOptions.innerHTML = ''; // Clear previous options
-    exercises.forEach(exercise => {
+    currentWorkoutExercises.forEach(exercise => { // Use currentWorkoutExercises here
         const exerciseDiv = document.createElement('div');
         exerciseDiv.className = 'mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50';
         // Determine the default selected option for the dropdown based on current display level
         const defaultSelectedLevel = exercise.currentLevelIndex;
 
+        // Display dropdown only if there are multiple levels
+        let levelSelectHtml = '';
+        if (exercise.levels.length > 1) {
+            levelSelectHtml = `
+                <select id="select-${exercise.id}" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 text-sm">
+                    <option value="0" ${defaultSelectedLevel === 0 ? 'selected' : ''}>Foundation</option>
+                    <option value="1" ${defaultSelectedLevel === 1 ? 'selected' : ''}>Main</option>
+                    <option value="2" ${defaultSelectedLevel === 2 ? 'selected' : ''}>Progressive</option>
+                </select>
+            `;
+        } else {
+            // If only one level, show it as plain text and hide the select
+            levelSelectHtml = `<p class="text-sm text-gray-500">Level: ${exercise.levels[0].levelName}</p>`;
+        }
+
+
         exerciseDiv.innerHTML = `
             <h4 class="font-medium text-gray-700 mb-2">${exercise.name}</h4>
-            <select id="select-${exercise.id}" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 text-sm">
-                <option value="0" ${defaultSelectedLevel === 0 ? 'selected' : ''}>Foundation</option>
-                <option value="1" ${defaultSelectedLevel === 1 ? 'selected' : ''}>Main</option>
-                <option value="2" ${defaultSelectedLevel === 2 ? 'selected' : ''}>Progressive</option>
-            </select>
+            ${levelSelectHtml}
         `;
         pdfExportOptions.appendChild(exerciseDiv);
     });
 };
 
+// Function to populate the Add Existing Exercise Modal
+const populateAddExistingExerciseModal = (sectionType) => {
+    const availableExercisesSelect = document.getElementById('availableExercisesSelect');
+    availableExercisesSelect.innerHTML = '<option value="">-- Select an exercise --</option>'; // Default option
+
+    // Filter master exercises by section type and exclude those already in current workout
+    const exercisesInCurrentSection = currentWorkoutExercises.filter(ex => ex.type === sectionType).map(ex => ex.id);
+    const availableExercises = allMasterExercises.filter(masterEx => 
+        masterEx.type === sectionType && !exercisesInCurrentSection.includes(masterEx.id)
+    );
+
+    if (availableExercises.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No more exercises available for this section.';
+        option.disabled = true;
+        availableExercisesSelect.appendChild(option);
+        document.getElementById('confirmAddExistingExerciseBtn').disabled = true;
+    } else {
+        availableExercises.forEach(exercise => {
+            const option = document.createElement('option');
+            option.value = exercise.id;
+            option.textContent = exercise.name;
+            availableExercisesSelect.appendChild(option);
+        });
+        document.getElementById('confirmAddExistingExerciseBtn').disabled = false;
+    }
+};
+
+
 // Main DOM Content Loaded Logic
 document.addEventListener('DOMContentLoaded', async () => {
-    // Render exercises directly from the imported data
-    renderExercises(exercises);
+    initializeWorkoutExercises(); // Initialize exercises on page load
+    renderExercises(); // Initial render of exercises
 
-    // --- Event Listeners for PDF Export ---
+    // --- PDF Export Modal Event Listeners ---
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     const exportPdfModal = document.getElementById('exportPdfModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -224,17 +296,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         sections.forEach(section => {
             let sectionHtml = `<h3>${section.title}</h3>`;
-            const sectionExercises = exercises.filter(e => e.type === section.type);
+            const sectionExercises = currentWorkoutExercises.filter(e => e.type === section.type); // Use currentWorkoutExercises
 
             sectionExercises.forEach(exercise => {
                 const selectElement = document.getElementById(`select-${exercise.id}`);
-                const selectedLevelIndex = selectElement ? parseInt(selectElement.value) : exercise.currentLevelIndex; // Fallback to current displayed level
+                // If there's a select element, use its value; otherwise, default to the exercise's currentLevelIndex (e.g., for single-level exercises)
+                const selectedLevelIndex = selectElement ? parseInt(selectElement.value) : (exercise.currentLevelIndex || 0); 
                 const levelData = exercise.levels[selectedLevelIndex];
                 
-                // --- NEW: Include individual exercise notes in PDF ---
                 const individualExerciseNotes = exercise.notes ? 
                     `<p style="margin-top: 5px; font-style: italic;">Notes: ${exercise.notes}</p>` : '';
-                // --- END NEW ---
 
                 sectionHtml += `
                     <div class="pdf-exercise-card">
@@ -244,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p class="detail-line"><span class="detail-heading">Pelvic Position:</span> ${levelData.pelvicPosition}</p>
                         <p class="detail-line"><span class="detail-heading">Spine Action (C/T/L):</span> ${levelData.spineAction}</p>
                         <p style="margin-top: 10px; font-style: italic; color: #888;">Image Example: ${levelData.imagePlaceholder}</p>
-                        ${individualExerciseNotes} <!-- Include the notes here -->
+                        ${individualExerciseNotes}
                     </div>
                 `;
             });
@@ -265,8 +336,55 @@ document.addEventListener('DOMContentLoaded', async () => {
             html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
             jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
         }).then(() => {
-            // Optional: Clear the hidden content div after PDF generation
-            pdfContentDiv.innerHTML = '';
+            pdfContentDiv.innerHTML = ''; // Clear the hidden content div after PDF generation
         });
+    });
+
+    // --- Add Existing Exercise Modal Event Listeners and Logic ---
+    const addExistingExerciseModal = document.getElementById('addExistingExerciseModal');
+    const closeExistingExerciseModalBtn = document.getElementById('closeExistingExerciseModalBtn');
+    const cancelAddExistingExerciseBtn = document.getElementById('cancelAddExistingExerciseBtn');
+    const confirmAddExistingExerciseBtn = document.getElementById('confirmAddExistingExerciseBtn');
+    const addExistingExerciseModalTitleType = document.getElementById('addExistingExerciseModalTitleType');
+    const selectedSectionTypeInput = document.getElementById('selectedSectionType'); // Hidden input for type
+    const availableExercisesSelect = document.getElementById('availableExercisesSelect');
+
+    document.querySelectorAll('.btn-add-existing-exercise').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const sectionType = event.target.dataset.sectionType;
+            addExistingExerciseModalTitleType.textContent = sectionType.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            selectedSectionTypeInput.value = sectionType; // Set the hidden input with the section type
+            populateAddExistingExerciseModal(sectionType); // Populate the dropdown with available exercises
+            addExistingExerciseModal.classList.remove('hidden');
+        });
+    });
+
+    closeExistingExerciseModalBtn.addEventListener('click', () => {
+        addExistingExerciseModal.classList.add('hidden');
+    });
+
+    cancelAddExistingExerciseBtn.addEventListener('click', () => {
+        addExistingExerciseModal.classList.add('hidden');
+    });
+
+    confirmAddExistingExerciseBtn.addEventListener('click', () => {
+        const selectedExerciseId = availableExercisesSelect.value;
+        const sectionType = selectedSectionTypeInput.value;
+
+        if (selectedExerciseId) {
+            const exerciseToAdd = allMasterExercises.find(ex => ex.id === selectedExerciseId);
+            if (exerciseToAdd) {
+                // Deep clone the exercise before adding to currentWorkoutExercises
+                const newExerciseInstance = {
+                    ...exerciseToAdd,
+                    levels: exerciseToAdd.levels.map(level => ({ ...level })),
+                    currentLevelIndex: exerciseToAdd.currentLevelIndex || 0,
+                    notes: '' // Ensure new exercises have an empty notes property
+                };
+                currentWorkoutExercises.push(newExerciseInstance);
+                renderExercises(); // Re-render the workout routine
+            }
+        }
+        addExistingExerciseModal.classList.add('hidden'); // Close the modal
     });
 });
